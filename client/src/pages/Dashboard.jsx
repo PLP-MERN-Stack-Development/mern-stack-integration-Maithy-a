@@ -4,7 +4,7 @@ import PostsList from "../components/PostsList";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -25,9 +25,12 @@ export default function Dashboard() {
   const fetchPosts = async (page = 1) => {
     setLoading(true);
     try {
-      const data = await postService.getAllPosts(page, meta.limit);
-      setPosts(data.data ?? []);
-      setMeta(data.meta ?? { page: 1, limit: 10, total: 0 });
+      const response = await postService.getAllPosts(page, meta.limit);
+
+      console.log("Fetched posts response:", response);
+
+      setPosts(response.data || []);
+      setMeta(response.meta || { page: 1, limit: 10, total: 0 });
     } catch (err) {
       console.error("Failed to fetch posts", err);
     } finally {
@@ -40,19 +43,19 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta.page]);
 
-
-  const handlePage = (newPage) => {
+  const handlePageChange = (newPage) => {
     fetchPosts(newPage);
   };
 
   const handleDeleteOptimistic = async (postId) => {
-    const previous = posts;
-    setPosts((post) => post.filter((x) => x._id !== postId));
+    const previousPosts = posts;
+    setPosts((prev) => prev.filter((p) => p._id !== postId));
+
     try {
       await postService.deletePost(postId);
     } catch (err) {
-      setPosts(previous);
-      console.error("Delete failed, rolled back", err);
+      console.error("Delete failed, rolling back", err);
+      setPosts(previousPosts);
       alert("Failed to delete post");
     }
   };
@@ -105,29 +108,35 @@ export default function Dashboard() {
 
       <main>
         {loading ? (
-          <div>Loading posts...</div>
+          <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+            <Loader className="w-6 h-6 animate-spin mb-2" />
+            <span>Loading posts...</span>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="text-gray-500 text-center py-10">No posts found.</div>
         ) : (
           <>
             <PostsList posts={posts} onDelete={handleDeleteOptimistic} />
 
-            {/* Pagination */}
-            <div className="mt-4 flex items-center justify-between">
-              <div>
+            <div className="mt-6 flex items-center justify-between">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 Page {meta.page} of {Math.ceil(meta.total / meta.limit) || 1}
               </div>
+
               <div className="flex gap-2">
                 <Button
                   variant="secondary"
                   disabled={meta.page <= 1}
-                  onClick={() => handlePage(meta.page - 1)}
+                  onClick={() => handlePageChange(meta.page - 1)}
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Prev
                 </Button>
+
                 <Button
                   variant="secondary"
                   disabled={meta.page >= Math.ceil(meta.total / meta.limit)}
-                  onClick={() => handlePage(meta.page + 1)}
+                  onClick={() => handlePageChange(meta.page + 1)}
                 >
                   Next
                   <ChevronRight className="w-4 h-4 ml-1" />
