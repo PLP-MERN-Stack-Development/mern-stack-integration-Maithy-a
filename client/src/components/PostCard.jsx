@@ -1,18 +1,18 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { CustomDialog } from "./CustomDialog";
 
 export default function PostCard({ post, onDelete = () => { } }) {
   const navigate = useNavigate();
-  const excerpt =
-    post.excerpt || (post.content ? post.content.slice(0, 120) + "..." : "");
+  const excerpt = post.excerpt || (post.content ? post.content.slice(0, 120) + "..." : "");
 
   return (
-    <article className="border rounded-md p-4 bg-white dark:bg-gray-800 shadow">
+    <article className="relative border rounded-3xl space-y-4 p-4 bg-white dark:bg-gray-800 border-gray-200">
       {post.featuredImage && (
-        <div className="mb-3 h-40 overflow-hidden rounded">
+        <div className="mb-3 h-45 overflow-hidden rounded-xl">
           <img
-            src={`/${post.featuredImage}`}
+            src={`${import.meta.env.VITE_SERVER_URL}/${post.featuredImage.replace(/\\/g, "/")}`}
             alt={post.title}
             className="w-full h-full object-cover"
           />
@@ -26,24 +26,32 @@ export default function PostCard({ post, onDelete = () => { } }) {
           {new Date(post.createdAt).toLocaleDateString()}
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" className="text-sm text-blue-600 underline">
-            <Link to={`/posts/${post._id}`}>View</Link>
+          <Button
+            variant="ghost"
+            className="text-sm text-blue-600 underline"
+            onClick={() => navigate(`/posts/${post._id}`)}>
+            View
           </Button>
+
           <Button
             variant="outline"
             onClick={() => navigate(`/posts/${post._id}/edit`)}
-            className="text-sm px-2 py-1 border rounded"
           >
             Edit
           </Button>
-          <Button
+
+          <CustomDialog
+            title="Confirm Post deletion"
+            confirmText="Confirm Delete"
+            description="Are you sure you want to delete this post?"
+            alertMessage="This action cannot be undone."
+            triggerText="Delete"
             variant="destructive"
-            onClick={() => {
-              if (confirm("Delete this post?")) onDelete();
+            onConfirmFn={() => {
+              onDelete();
             }}
-          >
-            Delete
-          </Button>
+          />
+
         </div>
       </div>
     </article>

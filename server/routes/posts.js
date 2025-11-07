@@ -5,14 +5,14 @@ const multer = require('multer');
 
 const upload = multer({ dest: process.env.UPLOAD_DIR || 'uploads/' });
 
-const postCtrl = require('../controllers/postController');
 const auth = require('../middleware/auth');
+const postCtrl = require('../controllers/postController');
 
-// Public
+// Public routes
 router.get('/', postCtrl.listPosts);
 router.get('/:id', postCtrl.getPost);
 
-// Protected
+// Protected routes
 router.post(
     '/',
     auth,

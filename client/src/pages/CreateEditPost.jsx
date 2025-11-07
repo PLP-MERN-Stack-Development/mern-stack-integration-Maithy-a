@@ -97,20 +97,20 @@ export default function CreateEditPost() {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto p-6">
-      <div className="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow">
-        <h2 className="text-xl font-semibold mb-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="w-full max-w-3xl bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
+        <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800 dark:text-gray-100">
           {id ? "Edit Post" : "Create Post"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <Label className="block text-sm font-medium mb-1">Title</Label>
             <Input
               name="title"
               value={form.title}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2"
               required
             />
           </div>
@@ -121,7 +121,7 @@ export default function CreateEditPost() {
               name="excerpt"
               value={form.excerpt}
               onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2"
             />
           </div>
 
@@ -132,12 +132,12 @@ export default function CreateEditPost() {
               value={form.content}
               onChange={handleChange}
               rows="6"
-              className="w-full border rounded px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2"
               required
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <Label className="block text-sm font-medium mb-1">Category</Label>
               <Select
@@ -167,49 +167,54 @@ export default function CreateEditPost() {
                 name="tags"
                 value={form.tags}
                 onChange={handleChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded-lg px-3 py-2"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Featured Image
-            </label>
-            <input type="file" accept="image/*" onChange={handleImage} />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button type="submit" className="px-4 py-2 " disabled={loading}>
-              {loading ? (
-                <div className="flex items-center">
-                  <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </div>
-              ) : (
-                "Save Post"
-              )}
-            </Button>
-            <Button
-              variant="secondary"
-              type="button"
-              onClick={() => navigate(-1)}
-              className="px-4 py-2 border rounded"
-            >
-              Cancel
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Checkbox
-              id="isPublished"
-              name="isPublished"
-              checked={form.isPublished}
-              onCheckedChange={(checked) =>
-                setForm((f) => ({ ...f, isPublished: checked }))
-              }
+            <Label className="block text-sm font-medium mb-1">Featured Image</Label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImage}
+              className="w-full text-sm text-gray-600"
             />
-            <Label htmlFor="isPublished">Published</Label>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="isPublished"
+                name="isPublished"
+                checked={form.isPublished}
+                onCheckedChange={(checked) =>
+                  setForm((f) => ({ ...f, isPublished: checked }))
+                }
+              />
+              <Label htmlFor="isPublished">Published</Label>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button type="submit" className="px-4 py-2" disabled={loading}>
+                {loading ? (
+                  <div className="flex items-center">
+                    <Loader className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </div>
+                ) : (
+                  "Save Post"
+                )}
+              </Button>
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => navigate(-1)}
+                className="px-4 py-2"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         </form>
       </div>

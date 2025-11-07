@@ -4,17 +4,10 @@ import PostsList from "../components/PostsList";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner"
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
+import { CustomDialog } from "@/components/CustomDialog";
 
 export default function Dashboard() {
   const [posts, setPosts] = useState([]);
@@ -26,9 +19,7 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const response = await postService.getAllPosts(page, meta.limit);
-
-      console.log("Fetched posts response:", response);
-
+      // console.log("Fetched posts response:", response);
       setPosts(response.data || []);
       setMeta(response.meta || { page: 1, limit: 10, total: 0 });
     } catch (err) {
@@ -56,7 +47,7 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Delete failed, rolling back", err);
       setPosts(previousPosts);
-      alert("Failed to delete post");
+      toast.error("Failed to delete post");
     }
   };
 
@@ -75,64 +66,43 @@ export default function Dashboard() {
             <Link to="/posts/new">New Post</Link>
           </Button>
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="destructive">Logout</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Are you sure you want to logout?</DialogTitle>
-                <DialogDescription>
-                  Confirm to logout from your account.
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="sm:justify-start">
-                <DialogClose asChild>
-                  <Button variant="secondary">Cancel</Button>
-                </DialogClose>
-                <DialogClose asChild>
-                  <Button
-                    variant="destructive"
-                    onClick={() => {
-                      logout();
-                    }}
-                  >
-                    Confirm Logout
-                  </Button>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <CustomDialog
+            title="Confirm Logout"
+            confirmText="Confirm Logout"
+            description="Are you sure you want to logout?"
+            alertMessage="You will need to login again to access your dashboard."
+            triggerText="Logout"
+            variant="destructive"
+            onConfirmFn={() => { logout(); }}
+          />
         </div>
       </header>
 
       <main>
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-10 text-gray-600">
-            <Loader className="w-6 h-6 animate-spin mb-2" />
-            <span>Loading posts...</span>
+          <div className="flex items-center justify-center gap-3 text-gray-600 py-10">
+            <Loader className="w-5 h-5 animate-spin text-gray-500" />
+            <span className="text-base font-medium">Loading posts...</span>
           </div>
+
         ) : posts.length === 0 ? (
           <div className="text-gray-500 text-center py-10">No posts found.</div>
         ) : (
           <>
             <PostsList posts={posts} onDelete={handleDeleteOptimistic} />
-
             <div className="mt-6 flex items-center justify-between">
               <div className="text-sm text-gray-700 dark:text-gray-300">
                 Page {meta.page} of {Math.ceil(meta.total / meta.limit) || 1}
               </div>
-
               <div className="flex gap-2">
                 <Button
                   variant="secondary"
                   disabled={meta.page <= 1}
                   onClick={() => handlePageChange(meta.page - 1)}
                 >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  <ChevronLeft className="w-4 h-4" />
                   Prev
                 </Button>
-
                 <Button
                   variant="secondary"
                   disabled={meta.page >= Math.ceil(meta.total / meta.limit)}
