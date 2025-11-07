@@ -1,14 +1,15 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { authService } from "../services/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import CustomInput from "@/components/CustomInput";
-import { Loader2 } from "lucide-react";
+import { Loader, AlertCircleIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,7 +20,10 @@ export default function Register() {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -28,74 +32,76 @@ export default function Register() {
     setError("");
 
     try {
+      // console.log("Submitting form data:", formData); 
       await authService.register(formData);
       toast.success("Registration successful! You can now log in.");
+      navigate("/login");
     } catch (error) {
+      console.error("Registration error:", error);
       setError(error.response?.data?.message || "Registration failed");
       toast.error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm ">
-        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
-          Register
+      <div className="w-full max-w-sm">
+        <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-4">
+          Create Account
         </h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-2">
-            <CustomInput
-              label="Full Name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <CustomInput
+            label="Full Name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Enter your full name"
+            autoComplete="name"
+            required
+          />
 
-          <div className="grid gap-2">
-            <CustomInput
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+          <CustomInput
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            autoComplete="email"
+            required
+          />
 
-          <div className="grid gap-2">
-            <CustomInput
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+          <CustomInput
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            autoComplete="new-password"
+            required
+          />
 
           <Button type="submit" className="mt-6 w-full" disabled={loading}>
             {loading ? (
               <>
-                <Loader2 className="animate-spin mr-2 size-4" />
-                Loading
+                <Loader className="animate-spin mr-2 size-4" />
+                Registering...
               </>
             ) : (
-              "Login"
+              "Register"
             )}
           </Button>
         </form>
+
         {error && (
           <Alert variant="destructive" className="mt-4">
-            <AlertCircleIcon />
-            <AlertTitle>Login Failed</AlertTitle>
+            <AlertCircleIcon className="h-4 w-4" />
+            <AlertTitle>Registration Failed</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

@@ -5,6 +5,16 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Dashboard() {
   const [posts, setPosts] = useState([]);
@@ -16,7 +26,6 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const data = await postService.getAllPosts(page, meta.limit);
-      // data expected shape: { data: posts, meta: { total, page, limit } }
       setPosts(data.data ?? []);
       setMeta(data.meta ?? { page: 1, limit: 10, total: 0 });
     } catch (err) {
@@ -28,21 +37,20 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchPosts(meta.page);
-    // eslint-disable-next-line
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meta.page]);
+
 
   const handlePage = (newPage) => {
     fetchPosts(newPage);
   };
 
-  // optimistic delete handler provided to PostsList
   const handleDeleteOptimistic = async (postId) => {
     const previous = posts;
-    setPosts((post) => post.filter((x) => x._id !== postId)); // optimistic remove
+    setPosts((post) => post.filter((x) => x._id !== postId));
     try {
       await postService.deletePost(postId);
     } catch (err) {
-      // rollback
       setPosts(previous);
       console.error("Delete failed, rolled back", err);
       alert("Failed to delete post");
@@ -58,13 +66,40 @@ export default function Dashboard() {
             {user ? `Welcome, ${user.name || user.email}` : "Welcome"}
           </p>
         </div>
+
         <div className="flex items-center gap-3">
-          <Button>
+          <Button asChild>
             <Link to="/posts/new">New Post</Link>
           </Button>
-          <Button variant="destructive" onClick={() => logout()}>
-            Logout
-          </Button>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="destructive">Logout</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you sure you want to logout?</DialogTitle>
+                <DialogDescription>
+                  Confirm to logout from your account.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <Button variant="secondary">Cancel</Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      logout();
+                    }}
+                  >
+                    Confirm Logout
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
@@ -75,7 +110,7 @@ export default function Dashboard() {
           <>
             <PostsList posts={posts} onDelete={handleDeleteOptimistic} />
 
-            {/* Simple pagination */}
+            {/* Pagination */}
             <div className="mt-4 flex items-center justify-between">
               <div>
                 Page {meta.page} of {Math.ceil(meta.total / meta.limit) || 1}
@@ -85,7 +120,6 @@ export default function Dashboard() {
                   variant="secondary"
                   disabled={meta.page <= 1}
                   onClick={() => handlePage(meta.page - 1)}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Prev
@@ -94,7 +128,6 @@ export default function Dashboard() {
                   variant="secondary"
                   disabled={meta.page >= Math.ceil(meta.total / meta.limit)}
                   onClick={() => handlePage(meta.page + 1)}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
                 >
                   Next
                   <ChevronRight className="w-4 h-4 ml-1" />

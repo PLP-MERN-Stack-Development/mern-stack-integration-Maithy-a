@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-export default function PostCard({ post, onDelete = () => {} }) {
+export default function PostCard({ post, onDelete = () => { } }) {
   const navigate = useNavigate();
   const excerpt =
     post.excerpt || (post.content ? post.content.slice(0, 120) + "..." : "");
@@ -26,23 +26,24 @@ export default function PostCard({ post, onDelete = () => {} }) {
           {new Date(post.createdAt).toLocaleDateString()}
         </div>
         <div className="flex gap-2">
-          <Button className="text-sm text-blue-600 underline">
+          <Button variant="ghost" className="text-sm text-blue-600 underline">
             <Link to={`/posts/${post._id}`}>View</Link>
           </Button>
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate(`/posts/${post._id}/edit`)}
             className="text-sm px-2 py-1 border rounded"
           >
             Edit
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="destructive"
             onClick={() => {
               if (confirm("Delete this post?")) onDelete();
             }}
-            className="text-sm px-2 py-1 bg-red-500 text-white rounded"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </article>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Input } from "@/components/ui/input.jsx";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
 
 export default function CustomInput({
@@ -12,6 +12,7 @@ export default function CustomInput({
   required = false,
   disabled = false,
   error = "",
+  ...props
 }) {
   return (
     <div className="w-full flex flex-col space-y-2">
@@ -32,6 +33,7 @@ export default function CustomInput({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        {...props}
       />
       {error && <p className="text-sm text-rose-500">{error}</p>}
     </div>
