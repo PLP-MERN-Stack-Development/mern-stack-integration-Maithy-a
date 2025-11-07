@@ -58,13 +58,17 @@ export const postService = {
 
     // Create a new post
     createPost: async (postData) => {
-        const response = await api.post('/posts', postData);
+        const response = await api.post("/posts", postData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
         return response.data;
     },
 
     // Update an existing post
     updatePost: async (id, postData) => {
-        const response = await api.put(`/posts/${id}`, postData);
+        const response = await api.put(`/posts/${id}`, postData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
         return response.data;
     },
 
